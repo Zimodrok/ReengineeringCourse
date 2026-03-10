@@ -3,6 +3,8 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
 
 
+
+
 Цей репозиторій використовується для курсу **реінжиніринг ПЗ**. 
 Мета — провести комплексний реінжиніринг спадкового коду NetSdrClient, включаючи рефакторинг архітектури, покращення якості коду, впровадження сучасних практик розробки та автоматизацію процесів контролю якості через CI/CD пайплайни.
 
