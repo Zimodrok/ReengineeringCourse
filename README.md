@@ -1,7 +1,12 @@
 # Лабораторні з реінжинірингу (8×)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=Zimodrok_ReengineeringCourse&branch=master)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=bugs&branch=master)](https://sonarcloud.io/dashboard?id=Zimodrok_ReengineeringCourse&branch=master)
-
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=alert_status&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=coverage&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=bugs&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=code_smells&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=vulnerabilities&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=duplicated_lines_density&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=security_rating&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=sqale_rating&branch=master)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
 
 
 Цей репозиторій використовується для курсу **реінжиніринг ПЗ**. 
