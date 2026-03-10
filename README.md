@@ -1,7 +1,6 @@
 # Лабораторні з реінжинірингу (8×)
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Zimodrok_ReengineeringCourse)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Zimodrok_ReengineeringCourse)
-
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=Zimodrok_ReengineeringCourse&branch=master)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Zimodrok_ReengineeringCourse&metric=bugs&branch=master)](https://sonarcloud.io/dashboard?id=Zimodrok_ReengineeringCourse&branch=master)
 
 
 
