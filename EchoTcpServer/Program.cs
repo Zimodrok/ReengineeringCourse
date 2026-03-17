@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+namespace EchoServer;
 /// <summary>
 /// This program was designed for test purposes only
 /// Not for a review
@@ -16,7 +16,7 @@ public class EchoServer
     private CancellationTokenSource _cancellationTokenSource;
 
 
-    public EchoServer(int port)
+    public EchoServer(int port) 
     {
         _port = port;
         _cancellationTokenSource = new CancellationTokenSource();
