@@ -9,18 +9,11 @@ namespace EchoServer;
 /// This program was designed for test purposes only
 /// Not for a review
 /// </summary>
-public class EchoServer
+public class EchoServer(int port)
 {
-    private readonly int _port;
+    private readonly int _port = port;
     private TcpListener _listener;
-    private CancellationTokenSource _cancellationTokenSource;
-
-
-    public EchoServer(int port) 
-    {
-        _port = port;
-        _cancellationTokenSource = new CancellationTokenSource();
-    }
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     public async Task StartAsync()
     {
@@ -47,31 +40,29 @@ public class EchoServer
         Console.WriteLine("Server shutdown.");
     }
 
-    private async Task HandleClientAsync(TcpClient client, CancellationToken token)
+    private static async Task HandleClientAsync(TcpClient client, CancellationToken token)
     {
-        using (NetworkStream stream = client.GetStream())
+        using NetworkStream stream = client.GetStream();
+        try
         {
-            try
-            {
-                byte[] buffer = new byte[8192];
-                int bytesRead;
+            byte[] buffer = new byte[8192];
+            int bytesRead;
 
-                while (!token.IsCancellationRequested && (bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-                {
-                    // Echo back the received message
-                    await stream.WriteAsync(buffer, 0, bytesRead, token);
-                    Console.WriteLine($"Echoed {bytesRead} bytes to the client.");
-                }
-            }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
+            while (!token.IsCancellationRequested && (bytesRead = await stream.ReadAsync(buffer, token)) > 0)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                // Echo back the received message
+                await stream.WriteAsync(buffer.AsMemory(0, bytesRead), token);
+                Console.WriteLine($"Echoed {bytesRead} bytes to the client.");
             }
-            finally
-            {
-                client.Close();
-                Console.WriteLine("Client disconnected.");
-            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            client.Close();
+            Console.WriteLine("Client disconnected.");
         }
     }
 
@@ -85,7 +76,7 @@ public class EchoServer
 
     public static async Task Main(string[] args)
     {
-        EchoServer server = new EchoServer(5000);
+        EchoServer server = new(5000);
 
         // Start the server in a separate task
         _ = Task.Run(() => server.StartAsync());
@@ -94,38 +85,29 @@ public class EchoServer
         int port = 60000;          // Target Port
         int intervalMilliseconds = 5000; // Send every 3 seconds
 
-        using (var sender = new UdpTimedSender(host, port))
+        using var sender = new UdpTimedSender(host, port);
+        Console.WriteLine("Press any key to stop sending...");
+        sender.StartSending(intervalMilliseconds);
+
+        Console.WriteLine("Press 'q' to quit...");
+        while (Console.ReadKey(intercept: true).Key != ConsoleKey.Q)
         {
-            Console.WriteLine("Press any key to stop sending...");
-            sender.StartSending(intervalMilliseconds);
-
-            Console.WriteLine("Press 'q' to quit...");
-            while (Console.ReadKey(intercept: true).Key != ConsoleKey.Q)
-            {
-                // Just wait until 'q' is pressed
-            }
-
-            sender.StopSending();
-            server.Stop();
-            Console.WriteLine("Sender stopped.");
+            // Just wait until 'q' is pressed
         }
+
+        sender.StopSending();
+        server.Stop();
+        Console.WriteLine("Sender stopped.");
     }
 }
 
 
-public class UdpTimedSender : IDisposable
+public class UdpTimedSender(string host, int port) : IDisposable
 {
-    private readonly string _host;
-    private readonly int _port;
-    private readonly UdpClient _udpClient;
+    private readonly string _host = host;
+    private readonly int _port = port;
+    private readonly UdpClient _udpClient = new UdpClient();
     private Timer _timer;
-
-    public UdpTimedSender(string host, int port)
-    {
-        _host = host;
-        _port = port;
-        _udpClient = new UdpClient();
-    }
 
     public void StartSending(int intervalMilliseconds)
     {
@@ -142,12 +124,12 @@ public class UdpTimedSender : IDisposable
         try
         {
             //dummy data
-            Random rnd = new Random();
+            Random rnd = new();
             byte[] samples = new byte[1024];
             rnd.NextBytes(samples);
             i++;
 
-            byte[] msg = (new byte[] { 0x04, 0x84 }).Concat(BitConverter.GetBytes(i)).Concat(samples).ToArray();
+            byte[] msg = [.. (new byte[] { 0x04, 0x84 }), .. BitConverter.GetBytes(i), .. samples];
             var endpoint = new IPEndPoint(IPAddress.Parse(_host), _port);
 
             _udpClient.Send(msg, msg.Length, endpoint);
