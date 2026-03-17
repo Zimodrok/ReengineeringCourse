@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "zimodrok",
+        "projectKey": "Zimodrok_ReengineeringCourse"
+    }
+}
