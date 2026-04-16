@@ -52,22 +52,23 @@ jobs:
 
       # 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet tool install --global dotnet-sonarscanner
           dotnet sonarscanner begin `
           /k:"Zimodrok_ReengineeringCourse" `
           /o:"zimodrok" `
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.token="$env:SONAR_TOKEN" `
           /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.xml" `
           /d:sonar.host.url="https://sonarcloud.io" `
           /d:sonar.qualitygate.wait=true
-        shell: pwsh
-              # 2) BUILD & TEST
+        shell: pwsh              # 2) BUILD & TEST
       - name: Restore
         run: dotnet restore NetSdrClient.sln
       - name: Build
         run: dotnet build NetSdrClient.sln -c Release --no-restore
-        
+
       - name: Tests with coverage (OpenCover)
         run: |
           dotnet test NetSdrClientAppTests/NetSdrClientAppTests.csproj -c Release --no-build `
@@ -77,5 +78,7 @@ jobs:
         shell: pwsh
               # 3) END: SonarScanner
       - name: SonarScanner End
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
         shell: pwsh
