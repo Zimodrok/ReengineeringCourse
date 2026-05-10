@@ -140,5 +140,57 @@ namespace NetSdrClientAppTests
                 var samples = NetSdrMessageHelper.GetSamples(invalidSampleSizeBits, body).ToList();
             });
         }
+        [Test]
+        public void GetHeader_DataItemMaxLength_ReturnsZeroLengthInHeader()
+        {
+            var type = NetSdrMessageHelper.MsgTypes.DataItem0;
+            byte[] parameters = new byte[8192]; // 8192 + 2 (header) = 8194
+
+            var result = NetSdrMessageHelper.GetDataItemMessage(type, parameters);
+
+            Assert.Multiple(() => {
+                Assert.That(result[0], Is.EqualTo(0x00));
+                Assert.That(result[1], Is.EqualTo(0x80));
+            });
+        }
+
+        [Test]
+        public void TranslateMessage_ShortMessage_ReturnsFalse()
+        {
+            byte[] shortMsg = { 0x01 }; 
+            Assert.Throws<InvalidOperationException>(() => {
+                NetSdrMessageHelper.TranslateMessage(shortMsg, out _, out _, out _, out _);
+            });
+        }
+
+        [Test]
+        public void GetSamples_8BitSamples_HandlesPrefixBytes()
+        {
+            ushort sampleSizeBits = 8; 
+            byte[] body = { 0x01, 0x02, 0x03 }; 
+
+            var samples = NetSdrMessageHelper.GetSamples(sampleSizeBits, body).ToList();
+
+            Assert.Multiple(() => {
+                Assert.That(samples.Count, Is.EqualTo(3));
+                Assert.That(samples[0], Is.EqualTo(1));
+                Assert.That(samples[2], Is.EqualTo(3));
+            });
+        }
+
+        [Test]
+        public void GetSamples_24BitSamples_HandlesPrefixBytes()
+        {
+            ushort sampleSizeBits = 24; 
+            byte[] body = { 0x01, 0x00, 0x00, 0x02, 0x00, 0x00 }; 
+
+            var samples = NetSdrMessageHelper.GetSamples(sampleSizeBits, body).ToList();
+
+            Assert.Multiple(() => {
+                Assert.That(samples.Count, Is.EqualTo(2));
+                Assert.That(samples[0], Is.EqualTo(1));
+                Assert.That(samples[1], Is.EqualTo(2));
+            });
+        }
     }
 }
