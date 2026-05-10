@@ -147,9 +147,26 @@ public class UdpTimedSender(string host, int port) : IDisposable
         _timer = null;
     }
 
-    public void Dispose()
+    private bool _disposed = false;
+
+public void Dispose()
+{
+    Dispose(true);
+    GC.SuppressFinalize(this);
+}
+
+protected virtual void Dispose(bool disposing)
+{
+    if (_disposed)
+        return;
+
+    if (disposing)
     {
+        // Звільняємо керовані ресурси
         StopSending();
-        _udpClient.Dispose();
+        _udpClient?.Dispose();
     }
+
+    _disposed = true;
+}
 }

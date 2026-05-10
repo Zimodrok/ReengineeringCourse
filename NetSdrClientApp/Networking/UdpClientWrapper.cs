@@ -22,8 +22,7 @@ public class UdpClientWrapper : IUdpClient
     public async Task StartListeningAsync()
     {
         _cts = new CancellationTokenSource();
-        Console.WriteLine("Start listening for UDP messages...");
-
+        Console.WriteLine($"UDP: Receiver started on port {_localEndPoint.Port}...");
         try
         {
             _udpClient = new UdpClient(_localEndPoint);
@@ -32,7 +31,7 @@ public class UdpClientWrapper : IUdpClient
                 UdpReceiveResult result = await _udpClient.ReceiveAsync(_cts.Token);
                 MessageReceived?.Invoke(this, result.Buffer);
 
-                Console.WriteLine($"Received from {result.RemoteEndPoint}");
+                Console.WriteLine($"UDP Packet received from remote: {result.RemoteEndPoint}");
             }
         }
         catch (OperationCanceledException ex)
@@ -41,7 +40,7 @@ public class UdpClientWrapper : IUdpClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error receiving message: {ex.Message}");
+            Console.WriteLine($"UDP Error while receiving: {ex.Message}");
         }
     }
 
@@ -51,35 +50,21 @@ public class UdpClientWrapper : IUdpClient
         {
             _cts?.Cancel();
             _udpClient?.Close();
-            Console.WriteLine("Stopped listening for UDP messages.");
-        }
+            Console.WriteLine("UDP: Incoming data listener has been stopped.");
+       }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error while stopping: {ex.Message}");
+            Console.WriteLine($"UDP Termination error: {ex.Message}");
         }
     }
 
     public void Exit()
     {
-        try
-        {
-            _cts?.Cancel();
-            _udpClient?.Close();
-            Console.WriteLine("Stopped listening for UDP messages.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error while stopping: {ex.Message}");
-        }
+        StopListening();
+        Console.WriteLine("UDP Client: Service exited.");
     }
 
-    public override int GetHashCode()
-    {
-        var payload = $"{nameof(UdpClientWrapper)}|{_localEndPoint.Address}|{_localEndPoint.Port}";
-
-        using var md5 = MD5.Create();
-        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(payload));
-
-        return BitConverter.ToInt32(hash, 0);
-    }
-}
+public override int GetHashCode()
+{
+    return HashCode.Combine(nameof(UdpClientWrapper), _localEndPoint.Address, _localEndPoint.Port);
+}}

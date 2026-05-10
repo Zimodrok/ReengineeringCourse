@@ -26,8 +26,9 @@ namespace NetSdrClientApp.Networking
         {
             if (Connected)
             {
-                Console.WriteLine($"Already connected to {_host}:{_port}");
+                Console.WriteLine($"TCP: Already connected to {_host}:{_port}");
                 return;
+
             }
 
             _tcpClient = new TcpClient();
@@ -37,12 +38,12 @@ namespace NetSdrClientApp.Networking
                 _cts = new CancellationTokenSource();
                 _tcpClient.Connect(_host, _port);
                 _stream = _tcpClient.GetStream();
-                Console.WriteLine($"Connected to {_host}:{_port}");
+                Console.WriteLine($"TCP connection established with {_host}:{_port}");
                 _ = StartListeningAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to connect: {ex.Message}");
+                Console.WriteLine($"Failed to connect via TCP: {ex.Message}");
             }
         }
 
@@ -57,39 +58,30 @@ namespace NetSdrClientApp.Networking
                 _cts = null;
                 _tcpClient = null;
                 _stream = null;
-                Console.WriteLine("Disconnected.");
+                Console.WriteLine("TCP Client successfully disconnected.");
             }
             else
             {
-                Console.WriteLine("No active connection to disconnect.");
+                Console.WriteLine("TCP: No active connection found to disconnect.");
             }
         }
 
         public async Task SendMessageAsync(byte[] data)
         {
-            if (Connected && _stream != null && _stream.CanWrite)
-            {
-                Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
-                await _stream.WriteAsync(data);
-            }
-            else
-            {
-                throw new InvalidOperationException("Not connected to a server.");
-            }
+            if (!Connected || _stream == null || !_stream.CanWrite)
+                {
+                    throw new InvalidOperationException("Not connected to a server.");
+                }
+
+            string hexLog = data.Select(b => Convert.ToString(b, 16)).Aggregate((l, r) => $"{l} {r}");
+            Console.WriteLine($"Message sent: {hexLog}");
+            
+            await _stream.WriteAsync(data);
         }
 
         public async Task SendMessageAsync(string str)
         {
-            var data = Encoding.UTF8.GetBytes(str);
-            if (Connected && _stream != null && _stream.CanWrite)
-            {
-                Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
-                await _stream.WriteAsync(data);
-            }
-            else
-            {
-                throw new InvalidOperationException("Not connected to a server.");
-            }
+            await SendMessageAsync(Encoding.UTF8.GetBytes(str));
         }
 
         private async Task StartListeningAsync()
