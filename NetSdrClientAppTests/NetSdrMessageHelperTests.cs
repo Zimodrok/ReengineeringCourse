@@ -158,10 +158,10 @@ namespace NetSdrClientAppTests
         public void TranslateMessage_ShortMessage_ReturnsFalse()
         {
             byte[] shortMsg = { 0x01 }; 
-            Assert.Throws<InvalidOperationException>(() => {
-                NetSdrMessageHelper.TranslateMessage(shortMsg, out _, out _, out _, out _);
-            });
-        }
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                    NetSdrMessageHelper.TranslateMessage(shortMsg, out _, out _, out _, out _);
+                });
+            }
 
         [Test]
         public void GetSamples_8BitSamples_HandlesPrefixBytes()
