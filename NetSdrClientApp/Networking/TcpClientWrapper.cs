@@ -28,7 +28,6 @@ namespace NetSdrClientApp.Networking
             {
                 Console.WriteLine($"TCP: Already connected to {_host}:{_port}");
                 return;
-
             }
 
             _tcpClient = new TcpClient();
@@ -85,7 +84,9 @@ namespace NetSdrClientApp.Networking
             await SendMessageAsync(Encoding.UTF8.GetBytes(str));
         }
 
-                    var stream = _stream;
+        private async Task StartListeningAsync()
+        {
+            var stream = _stream;
             var cts = _cts;
 
             if (Connected && stream != null && stream.CanRead && cts != null)
@@ -117,5 +118,6 @@ namespace NetSdrClientApp.Networking
                     Console.WriteLine("Listener stopped.");
                 }
             }
+        }
     }
 }
