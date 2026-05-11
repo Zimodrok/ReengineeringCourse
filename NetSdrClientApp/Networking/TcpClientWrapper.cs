@@ -26,8 +26,9 @@ namespace NetSdrClientApp.Networking
         {
             if (Connected)
             {
-                Console.WriteLine($"Already connected to {_host}:{_port}");
+                Console.WriteLine($"TCP: Already connected to {_host}:{_port}");
                 return;
+
             }
 
             _tcpClient = new TcpClient();
@@ -37,12 +38,12 @@ namespace NetSdrClientApp.Networking
                 _cts = new CancellationTokenSource();
                 _tcpClient.Connect(_host, _port);
                 _stream = _tcpClient.GetStream();
-                Console.WriteLine($"Connected to {_host}:{_port}");
+                Console.WriteLine($"TCP connection established with {_host}:{_port}");
                 _ = StartListeningAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to connect: {ex.Message}");
+                Console.WriteLine($"Failed to connect via TCP: {ex.Message}");
             }
         }
 
@@ -57,11 +58,11 @@ namespace NetSdrClientApp.Networking
                 _cts = null;
                 _tcpClient = null;
                 _stream = null;
-                Console.WriteLine("Disconnected.");
+                Console.WriteLine("TCP Client successfully disconnected.");
             }
             else
             {
-                Console.WriteLine("No active connection to disconnect.");
+                Console.WriteLine("TCP: No active connection found to disconnect.");
             }
         }
 
