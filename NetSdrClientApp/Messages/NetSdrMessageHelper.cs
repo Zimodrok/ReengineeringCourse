@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
-using NetSdrClientApp.Networking;
 
 namespace NetSdrClientApp.Messages
 {
@@ -73,8 +72,6 @@ namespace NetSdrClientApp.Messages
             sequenceNumber = 0;
             bool success = true;
             var msgEnumarable = msg as IEnumerable<byte>;
-
-            TcpClientWrapper? dummy = null;
 
             TranslateHeader(msgEnumarable.Take(_msgHeaderLength).ToArray(), out type, out int msgLength);
             msgEnumarable = msgEnumarable.Skip(_msgHeaderLength);
