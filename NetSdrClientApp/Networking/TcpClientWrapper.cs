@@ -70,7 +70,8 @@ namespace NetSdrClientApp.Networking
         {
             if (Connected && _stream != null && _stream.CanWrite)
             {
-                Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
+                var hex = data.Select(b => Convert.ToString(b, 16)).Aggregate((l, r) => $"{l} {r}");
+                Console.WriteLine($"Message sent: {hex}");
                 await _stream.WriteAsync(data);
             }
             else
@@ -81,31 +82,22 @@ namespace NetSdrClientApp.Networking
 
         public async Task SendMessageAsync(string str)
         {
-            var data = Encoding.UTF8.GetBytes(str);
-            if (Connected && _stream != null && _stream.CanWrite)
-            {
-                Console.WriteLine($"Message sent: " + data.Select(b => Convert.ToString(b, toBase: 16)).Aggregate((l, r) => $"{l} {r}"));
-                await _stream.WriteAsync(data);
-            }
-            else
-            {
-                throw new InvalidOperationException("Not connected to a server.");
-            }
+            await SendMessageAsync(Encoding.UTF8.GetBytes(str));
         }
 
-        private async Task StartListeningAsync()
-        {
-            if (Connected && _stream != null && _stream.CanRead)
+                    var stream = _stream;
+            var cts = _cts;
+
+            if (Connected && stream != null && stream.CanRead && cts != null)
             {
                 try
                 {
-                    Console.WriteLine($"Starting listening for incomming messages.");
+                    Console.WriteLine("Starting listening for incoming messages.");
 
-                    while (!_cts.Token.IsCancellationRequested)
+                    while (!cts.Token.IsCancellationRequested)
                     {
                         byte[] buffer = new byte[8194];
-
-                        int bytesRead = await _stream.ReadAsync(buffer, _cts.Token);
+                        int bytesRead = await stream.ReadAsync(buffer, cts.Token);
                         if (bytesRead > 0)
                         {
                             MessageReceived?.Invoke(this, buffer.AsSpan(0, bytesRead).ToArray());
@@ -114,7 +106,7 @@ namespace NetSdrClientApp.Networking
                 }
                 catch (OperationCanceledException)
                 {
-                    //empty
+                    // Очікуване скасування при відключенні
                 }
                 catch (Exception ex)
                 {
@@ -125,11 +117,5 @@ namespace NetSdrClientApp.Networking
                     Console.WriteLine("Listener stopped.");
                 }
             }
-            else
-            {
-                throw new InvalidOperationException("Not connected to a server.");
-            }
-        }
     }
-
 }

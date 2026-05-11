@@ -60,20 +60,18 @@ public class EchoServer(int port, IEchoService echoService)
 
     public static async Task Main(string[] args)
     {
-        // Передаємо конкретну реалізацію сервісу (Dependency Injection)
         EchoServer server = new(5000, new EchoService());
-
         _ = Task.Run(() => server.StartAsync());
-        string host = "127.0.0.1";
-        int port = 60000;
-        int intervalMilliseconds = 5000;
 
-        using var sender = new UdpTimedSender(host, port);
-        Console.WriteLine("Press any key to stop sending...");
-        sender.StartSending(intervalMilliseconds);
+        using var sender = new UdpTimedSender("127.0.0.1", 60000);
+        sender.StartSending(5000);
 
         Console.WriteLine("Press 'q' to quit...");
-        while (Console.ReadKey(intercept: true).Key != ConsoleKey.Q) { }
+        // Виправлено порожній блок
+        while (Console.ReadKey(intercept: true).Key != ConsoleKey.Q) 
+        { 
+            await Task.Delay(100); 
+        }
 
         sender.StopSending();
         server.Stop();
@@ -97,7 +95,7 @@ public class UdpTimedSender(string host, int port) : IDisposable
 
     ushort i = 0;
 
-    private void SendMessageCallback(object state)
+    private void SendMessageCallback(object? state)
     {
         try
         {
