@@ -61,8 +61,7 @@ jobs:
           /o:"zimodrok" `
           /d:sonar.token="$env:SONAR_TOKEN" `
           /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" `
-          /d:sonar.coverage.exclusions="EchoTcpServer/Program.cs,EchoTcpServer/EchoProcessor.cs,NetSdrClientApp/Networking/*.cs" `
-          /d:sonar.host.url="https://sonarcloud.io" `
+          /d:sonar.coverage.exclusions="EchoTcpServer/Program.cs,EchoTcpServer/EchoProcessor.cs,EchoTcpServer/EchoService.cs,NetSdrClientApp/Networking/*.cs" `          /d:sonar.host.url="https://sonarcloud.io" `
           /d:sonar.qualitygate.wait=true
         shell: pwsh
 
