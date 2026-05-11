@@ -16,7 +16,7 @@ namespace NetSdrClientApp.Networking
         private readonly int _port = port;
         private TcpClient? _tcpClient;
         private NetworkStream? _stream;
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource? _cts;
 
         public bool Connected => _tcpClient != null && _tcpClient.Connected && _stream != null;
 
@@ -28,7 +28,6 @@ namespace NetSdrClientApp.Networking
             {
                 Console.WriteLine($"TCP: Already connected to {_host}:{_port}");
                 return;
-
             }
 
             _tcpClient = new TcpClient();
@@ -68,15 +67,16 @@ namespace NetSdrClientApp.Networking
 
         public async Task SendMessageAsync(byte[] data)
         {
-            if (!Connected || _stream == null || !_stream.CanWrite)
-                {
-                    throw new InvalidOperationException("Not connected to a server.");
-                }
-
-            string hexLog = data.Select(b => Convert.ToString(b, 16)).Aggregate((l, r) => $"{l} {r}");
-            Console.WriteLine($"Message sent: {hexLog}");
-            
-            await _stream.WriteAsync(data);
+            if (Connected && _stream != null && _stream.CanWrite)
+            {
+                var hex = data.Select(b => Convert.ToString(b, 16)).Aggregate((l, r) => $"{l} {r}");
+                Console.WriteLine($"Message sent: {hex}");
+                await _stream.WriteAsync(data);
+            }
+            else
+            {
+                throw new InvalidOperationException("Not connected to a server.");
+            }
         }
 
         public async Task SendMessageAsync(string str)
@@ -86,26 +86,28 @@ namespace NetSdrClientApp.Networking
 
         private async Task StartListeningAsync()
         {
-            if (Connected && _stream != null && _stream.CanRead)
+            var stream = _stream;
+            var cts = _cts;
+
+            if (Connected && stream != null && stream.CanRead && cts != null)
             {
                 try
                 {
-                    Console.WriteLine($"Starting listening for incomming messages.");
+                    Console.WriteLine("Starting listening for incoming messages.");
 
-                    while (!_cts.Token.IsCancellationRequested)
+                    while (!cts.Token.IsCancellationRequested)
                     {
                         byte[] buffer = new byte[8194];
-
-                        int bytesRead = await _stream.ReadAsync(buffer, _cts.Token);
+                        int bytesRead = await stream.ReadAsync(buffer, cts.Token);
                         if (bytesRead > 0)
                         {
                             MessageReceived?.Invoke(this, buffer.AsSpan(0, bytesRead).ToArray());
                         }
                     }
                 }
-                catch (OperationCanceledException ex)
+                catch (OperationCanceledException)
                 {
-                    //empty
+                    // Очікуване скасування при відключенні
                 }
                 catch (Exception ex)
                 {
@@ -116,11 +118,6 @@ namespace NetSdrClientApp.Networking
                     Console.WriteLine("Listener stopped.");
                 }
             }
-            else
-            {
-                throw new InvalidOperationException("Not connected to a server.");
-            }
         }
     }
-
 }

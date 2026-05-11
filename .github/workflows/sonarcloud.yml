@@ -41,7 +41,7 @@ permissions:
 jobs:
   sonar-check:
     name: Sonar Check
-    runs-on: windows-latest   # безпечно для будь-яких .NET проектів
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -60,23 +60,27 @@ jobs:
           /k:"Zimodrok_ReengineeringCourse" `
           /o:"zimodrok" `
           /d:sonar.token="$env:SONAR_TOKEN" `
-          /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.xml" `
+          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" `
+          /d:sonar.coverage.exclusions="EchoTcpServer/Program.cs,EchoTcpServer/EchoProcessor.cs,NetSdrClientApp/Networking/*.cs" `
           /d:sonar.host.url="https://sonarcloud.io" `
           /d:sonar.qualitygate.wait=true
-        shell: pwsh              # 2) BUILD & TEST
+        shell: pwsh
+
+      # 2) BUILD & TEST
       - name: Restore
         run: dotnet restore NetSdrClient.sln
+
       - name: Build
         run: dotnet build NetSdrClient.sln -c Release --no-restore
 
-      - name: Tests with coverage (OpenCover)
+      - name: Tests with coverage
         run: |
-          dotnet test NetSdrClientAppTests/NetSdrClientAppTests.csproj -c Release --no-build `
-            /p:CollectCoverage=true `
-            /p:CoverletOutput=TestResults/coverage.xml `
-            /p:CoverletOutputFormat=opencover
+          dotnet test NetSdrClient.sln -c Release --no-build `
+            --collect:"XPlat Code Coverage" `
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         shell: pwsh
-              # 3) END: SonarScanner
+
+      # 3) END: SonarScanner
       - name: SonarScanner End
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
