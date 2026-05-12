@@ -1,9 +1,11 @@
 ﻿using Moq;
+using NUnit.Framework;
 using NetSdrClientApp;
 using NetSdrClientApp.Networking;
 
 namespace NetSdrClientAppTests;
 
+[TestFixture]
 public class NetSdrClientTests
 {
     NetSdrClient _client;
@@ -35,6 +37,19 @@ public class NetSdrClientTests
 
         _client = new NetSdrClient(_tcpMock.Object, _updMock.Object);
     }
+        [Test]
+        public void Constructor_ShouldInitializeCorrectly()
+        {
+            // Arrange
+            var tcpClientMock = new Mock<ITcpClient>();
+            var udpClientMock = new Mock<IUdpClient>();
+
+            // Act
+            var client = new NetSdrClient(tcpClientMock.Object, udpClientMock.Object);
+
+            // Assert
+            Assert.That(client, Is.Not.Null);
+        }
 
     [Test]
     public async Task ConnectAsyncTest()
