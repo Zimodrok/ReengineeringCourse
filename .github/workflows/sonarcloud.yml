@@ -50,7 +50,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # 1) BEGIN: SonarScanner for .NET
+# 1) BEGIN: SonarScanner for .NET
       - name: SonarScanner Begin
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -61,7 +61,10 @@ jobs:
           /o:"zimodrok" `
           /d:sonar.token="$env:SONAR_TOKEN" `
           /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" `
-          /d:sonar.coverage.exclusions="**/bin/**/*,**/obj/**/*,EchoTcpServer/Program.cs,NetSdrClientApp/Program.cs, EchoTcpServer/EchoProcessor.cs,EchoTcpServer/EchoService.cs,NetSdrClientApp/Networking/*.cs,**/*Tests.cs" `
+          /d:sonar.coverage.exclusions="**/bin/**/*,**/obj/**/*,EchoTcpServer/Program.cs,NetSdrClientApp/Program.cs,EchoTcpServer/EchoProcessor.cs,EchoTcpServer/EchoService.cs,NetSdrClientApp/Networking/*.cs,**/*Tests.cs" `
+          /d:sonar.java.file.suffixes="-nothing" `
+          /d:sonar.javascript.file.suffixes="-nothing" `
+          /d:sonar.typescript.file.suffixes="-nothing" `
           /d:sonar.qualitygate.wait=true
         shell: pwsh
 
