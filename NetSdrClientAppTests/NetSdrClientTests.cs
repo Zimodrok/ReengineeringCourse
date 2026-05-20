@@ -85,7 +85,7 @@ public class NetSdrClientTests
         await client.StopIQAsync();
         await client.ChangeFrequencyAsync(1000000, 1);
 
-        Assert.That(tcpMock.Object.Connected, Is.False);
+        Assert.That(tcpMock.Object.Connected, Is.EqualTo(false));
     }
 
     [Test]
@@ -167,8 +167,11 @@ public class NetSdrClientTests
         await _client.StartIQAsync();
 
         //assert
-        _updMock.Verify(udp => udp.StartListeningAsync(), Times.Once);
-        Assert.That(_client.IQStarted, Is.True);
+        Assert.Multiple(() =>
+        {
+            _updMock.Verify(udp => udp.StartListeningAsync(), Times.Once);
+            Assert.That(_client.IQStarted, Is.EqualTo(true));
+        });
     }
 
     [Test]
@@ -181,10 +184,14 @@ public class NetSdrClientTests
         await _client.StopIQAsync();
 
         //assert
-        _updMock.Verify(tcp => tcp.StopListening(), Times.Once);
-        Assert.That(_client.IQStarted, Is.False);
+        Assert.Multiple(() =>
+        {
+            _updMock.Verify(tcp => tcp.StopListening(), Times.Once);
+            Assert.That(_client.IQStarted, Is.EqualTo(false));
+        });
     }
-        [Test]
+
+    [Test]
     public void UdpClientWrapper_Dispose_ShouldCleanUpResources()
     {
         using (var wrapper = new NetSdrClientApp.Networking.UdpClientWrapper(50001))
@@ -200,8 +207,11 @@ public class NetSdrClientTests
         var wrapper2 = new NetSdrClientApp.Networking.UdpClientWrapper(50002);
         var wrapper3 = new NetSdrClientApp.Networking.UdpClientWrapper(50003);
 
-        Assert.That(wrapper1.Equals(wrapper2), Is.True);
-        Assert.That(wrapper1.Equals(wrapper3), Is.False);
-        Assert.That(wrapper1.GetHashCode(), Is.EqualTo(wrapper2.GetHashCode()));
+        Assert.Multiple(() =>
+        {
+            Assert.That(wrapper1.Equals(wrapper2), Is.EqualTo(true));
+            Assert.That(wrapper1.Equals(wrapper3), Is.EqualTo(false));
+            Assert.That(wrapper1.GetHashCode(), Is.EqualTo(wrapper2.GetHashCode()));
+        });
     }
 }

@@ -1,4 +1,7 @@
-﻿using NetSdrClientApp.Messages;
+﻿#pragma warning disable CS8618 // Non-nullable field must contain a non-null value
+#pragma warning disable CS8603 // Possible null reference return
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type
+using NetSdrClientApp.Messages;
 using NetSdrClientApp.Networking;
 using System;
 using System.Collections.Generic;

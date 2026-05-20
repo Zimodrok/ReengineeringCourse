@@ -10,6 +10,7 @@ namespace NetSdrClientApp.Networking;
 
 public class UdpClientWrapper : IUdpClient, IDisposable
 {
+    private bool _disposed;
     private readonly IPEndPoint _localEndPoint;
     private CancellationTokenSource? _cts;
     private UdpClient? _udpClient;
@@ -37,7 +38,7 @@ public class UdpClientWrapper : IUdpClient, IDisposable
                 Console.WriteLine($"UDP Packet received from remote: {result.RemoteEndPoint}");
             }
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             //empty
         }
@@ -61,13 +62,27 @@ public class UdpClientWrapper : IUdpClient, IDisposable
             Console.WriteLine($"UDP Termination error: {ex.Message}");
         }
     }
-            public void Dispose()
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            StopListening();
-            _cts?.Dispose();
-            _cts = null;
-            GC.SuppressFinalize(this);
+            if (disposing)
+            {
+                StopListening();
+                _cts?.Dispose();
+                _cts = null;
+            }
+            _disposed = true;
         }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
     public void Exit()
     {
         StopListening();
