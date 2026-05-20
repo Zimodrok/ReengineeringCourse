@@ -214,4 +214,29 @@ public class NetSdrClientTests
             Assert.That(wrapper1.GetHashCode(), Is.EqualTo(wrapper2.GetHashCode()));
         });
     }
+    [Test]
+    public async Task Program_HandleKey_ShouldExecuteAllBranches()
+    {
+        // Arrange
+        var tcpMock = new Mock<ITcpClient>();
+        var udpMock = new Mock<IUdpClient>();
+        
+        tcpMock.Setup(t => t.Connected).Returns(true);
+        tcpMock.Setup(t => t.SendMessageAsync(It.IsAny<byte[]>())).Callback<byte[]>((bytes) => {
+            tcpMock.Raise(t => t.MessageReceived += null, tcpMock.Object, new byte[] { 0x06, 0x00, bytes[2], 0x00, 0x00, 0x00 });
+        });
+
+        var client = new NetSdrClient(tcpMock.Object, udpMock.Object);
+
+        // Act & Assert
+        Assert.DoesNotThrowAsync(async () => {
+            await Program.HandleKey(ConsoleKey.C, client);
+            await Program.HandleKey(ConsoleKey.D, client);
+            await Program.HandleKey(ConsoleKey.F, client);
+            
+            await Program.HandleKey(ConsoleKey.S, client);
+            await Program.HandleKey(ConsoleKey.S, client);
+            await Program.HandleKey(ConsoleKey.X, client);
+        });
+    }
 }
