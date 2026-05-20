@@ -65,7 +65,8 @@ jobs:
           /d:sonar.java.file.suffixes="-nothing" `
           /d:sonar.javascript.file.suffixes="-nothing" `
           /d:sonar.typescript.file.suffixes="-nothing" `
-          /d:sonar.qualitygate.wait=true
+          /d:sonar.qualitygate.wait=true `
+          /d:sonar.architecture.enable=false
         shell: pwsh
 
       # 2) BUILD & TEST
