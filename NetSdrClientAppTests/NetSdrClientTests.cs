@@ -184,4 +184,24 @@ public class NetSdrClientTests
         _updMock.Verify(tcp => tcp.StopListening(), Times.Once);
         Assert.That(_client.IQStarted, Is.False);
     }
+        [Test]
+    public void UdpClientWrapper_Dispose_ShouldCleanUpResources()
+    {
+        using (var wrapper = new NetSdrClientApp.Networking.UdpClientWrapper(50001))
+        {
+            Assert.DoesNotThrow(() => wrapper.Dispose());
+        }
+    }
+
+    [Test]
+    public void UdpClientWrapper_Equals_ShouldWorkCorrectly()
+    {
+        var wrapper1 = new NetSdrClientApp.Networking.UdpClientWrapper(50002);
+        var wrapper2 = new NetSdrClientApp.Networking.UdpClientWrapper(50002);
+        var wrapper3 = new NetSdrClientApp.Networking.UdpClientWrapper(50003);
+
+        Assert.That(wrapper1.Equals(wrapper2), Is.True);
+        Assert.That(wrapper1.Equals(wrapper3), Is.False);
+        Assert.That(wrapper1.GetHashCode(), Is.EqualTo(wrapper2.GetHashCode()));
+    }
 }
