@@ -120,7 +120,7 @@ namespace NetSdrClientAppTests
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.That(samples.Count, Is.EqualTo(3));
+                Assert.That(samples, Has.Count.EqualTo(3));
                 Assert.That(samples[0], Is.EqualTo(1));
                 Assert.That(samples[1], Is.EqualTo(2));
                 Assert.That(samples[2], Is.EqualTo(255));
@@ -172,7 +172,7 @@ namespace NetSdrClientAppTests
             var samples = NetSdrMessageHelper.GetSamples(sampleSizeBits, body).ToList();
 
             Assert.Multiple(() => {
-                Assert.That(samples.Count, Is.EqualTo(3));
+                Assert.That(samples, Has.Count.EqualTo(3));
                 Assert.That(samples[0], Is.EqualTo(1));
                 Assert.That(samples[2], Is.EqualTo(3));
             });
@@ -187,7 +187,7 @@ namespace NetSdrClientAppTests
             var samples = NetSdrMessageHelper.GetSamples(sampleSizeBits, body).ToList();
 
             Assert.Multiple(() => {
-                Assert.That(samples.Count, Is.EqualTo(2));
+                Assert.That(samples, Has.Count.EqualTo(2));
                 Assert.That(samples[0], Is.EqualTo(1));
                 Assert.That(samples[1], Is.EqualTo(2));
             });
