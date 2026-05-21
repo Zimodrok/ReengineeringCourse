@@ -6,8 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class UdpClientWrapper : IUdpClient
+namespace NetSdrClientApp.Networking;
+
+public class UdpClientWrapper : IUdpClient, IDisposable
 {
+    private bool _disposed;
     private readonly IPEndPoint _localEndPoint;
     private CancellationTokenSource? _cts;
     private UdpClient? _udpClient;
@@ -21,6 +24,7 @@ public class UdpClientWrapper : IUdpClient
 
     public async Task StartListeningAsync()
     {
+        _cts?.Dispose(); 
         _cts = new CancellationTokenSource();
         Console.WriteLine($"UDP: Receiver started on port {_localEndPoint.Port}...");
         try
@@ -34,7 +38,7 @@ public class UdpClientWrapper : IUdpClient
                 Console.WriteLine($"UDP Packet received from remote: {result.RemoteEndPoint}");
             }
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             //empty
         }
@@ -50,6 +54,7 @@ public class UdpClientWrapper : IUdpClient
         {
             _cts?.Cancel();
             _udpClient?.Close();
+            _udpClient?.Dispose();
             Console.WriteLine("UDP: Incoming data listener has been stopped.");
        }
         catch (Exception ex)
@@ -58,11 +63,40 @@ public class UdpClientWrapper : IUdpClient
         }
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                StopListening();
+                _cts?.Dispose();
+                _cts = null;
+            }
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
     public void Exit()
     {
         StopListening();
         Console.WriteLine("UDP Client: Service exited.");
     }
+    
+public override bool Equals(object? obj)
+{
+    if (obj is UdpClientWrapper other)
+    {
+        return _localEndPoint.Equals(other._localEndPoint);
+    }
+    return false;
+}
 
 public override int GetHashCode()
 {

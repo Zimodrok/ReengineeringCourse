@@ -85,7 +85,7 @@ public class NetSdrClientTests
         await client.StopIQAsync();
         await client.ChangeFrequencyAsync(1000000, 1);
 
-        Assert.That(tcpMock.Object.Connected, Is.False);
+        Assert.That(tcpMock.Object.Connected, Is.EqualTo(false));
     }
 
     [Test]
@@ -167,8 +167,11 @@ public class NetSdrClientTests
         await _client.StartIQAsync();
 
         //assert
-        _updMock.Verify(udp => udp.StartListeningAsync(), Times.Once);
-        Assert.That(_client.IQStarted, Is.True);
+        Assert.Multiple(() =>
+        {
+            _updMock.Verify(udp => udp.StartListeningAsync(), Times.Once);
+            Assert.That(_client.IQStarted, Is.EqualTo(true));
+        });
     }
 
     [Test]
@@ -181,7 +184,59 @@ public class NetSdrClientTests
         await _client.StopIQAsync();
 
         //assert
-        _updMock.Verify(tcp => tcp.StopListening(), Times.Once);
-        Assert.That(_client.IQStarted, Is.False);
+        Assert.Multiple(() =>
+        {
+            _updMock.Verify(tcp => tcp.StopListening(), Times.Once);
+            Assert.That(_client.IQStarted, Is.EqualTo(false));
+        });
+    }
+
+    [Test]
+    public void UdpClientWrapper_Dispose_ShouldCleanUpResources()
+    {
+        using (var wrapper = new NetSdrClientApp.Networking.UdpClientWrapper(50001))
+        {
+            Assert.DoesNotThrow(() => wrapper.Dispose());
+        }
+    }
+
+    [Test]
+    public void UdpClientWrapper_Equals_ShouldWorkCorrectly()
+    {
+        var wrapper1 = new NetSdrClientApp.Networking.UdpClientWrapper(50002);
+        var wrapper2 = new NetSdrClientApp.Networking.UdpClientWrapper(50002);
+        var wrapper3 = new NetSdrClientApp.Networking.UdpClientWrapper(50003);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(wrapper1.Equals(wrapper2), Is.EqualTo(true));
+            Assert.That(wrapper1.Equals(wrapper3), Is.EqualTo(false));
+            Assert.That(wrapper1.GetHashCode(), Is.EqualTo(wrapper2.GetHashCode()));
+        });
+    }
+    [Test]
+    public async Task Program_HandleKey_ShouldExecuteAllBranches()
+    {
+        // Arrange
+        var tcpMock = new Mock<ITcpClient>();
+        var udpMock = new Mock<IUdpClient>();
+        
+        tcpMock.Setup(t => t.Connected).Returns(true);
+        tcpMock.Setup(t => t.SendMessageAsync(It.IsAny<byte[]>())).Callback<byte[]>((bytes) => {
+            tcpMock.Raise(t => t.MessageReceived += null, tcpMock.Object, new byte[] { 0x06, 0x00, bytes[2], 0x00, 0x00, 0x00 });
+        });
+
+        var client = new NetSdrClient(tcpMock.Object, udpMock.Object);
+
+        // Act & Assert
+        Assert.DoesNotThrowAsync(async () => {
+            await Program.HandleKey(ConsoleKey.C, client);
+            await Program.HandleKey(ConsoleKey.D, client);
+            await Program.HandleKey(ConsoleKey.F, client);
+            
+            await Program.HandleKey(ConsoleKey.S, client);
+            await Program.HandleKey(ConsoleKey.S, client);
+            await Program.HandleKey(ConsoleKey.X, client);
+        });
     }
 }
